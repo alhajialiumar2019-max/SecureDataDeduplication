@@ -12,25 +12,23 @@ insecure and allowed for unauthorized data access. Since
 then, many schemes for secure data deduplication have been
 proposed.
 
-From 2010 to the present day,
-security properties for data deduplication were tackled mainly
-using the following approaches:1. Convergent Encryption: Data is encrypted using a key derived from the data itself. This allows identical files to produce identical encrypted representations, making deduplication possible.
+From 2010 to the present day, several approaches have been explored to improve the security of data deduplication:
 
-2. Proof of Ownership (PoW): Before allowing a user to access an existing stored file, the system verifies that the user actually possesses the original data. This helps prevent unauthorized users from claiming ownership of files they do not have.
+1. Convergent Encryption: Encryption keys are derived deterministically from file content, allowing identical files to produce identical encrypted representations.
 
-3. Message-Locked Encryption: Encryption keys are deterministically generated from the message or file content. This enables identical data to share the same encrypted representation while maintaining confidentiality.
+2. Proof of Ownership (PoW): The system verifies that a user possesses the original file before granting access to an existing stored copy.
 
-4. Secure Key Management: Encryption keys must be protected against unauthorized access. Secure key storage, controlled key distribution, and appropriate cryptographic practices are essential to protecting user data.
+3. Message-Dependent Encryption: Encryption depends on information derived from the file content, enabling deduplication while protecting data.
 
-5. Access Control and Authentication: The system must verify user identities and enforce permissions before allowing files to be uploaded, retrieved, modified, or deleted.
+4. Traffic Obfuscation: Techniques are used to reduce information leakage through observable network traffic.
 
-6. Data Integrity Verification: Cryptographic hash functions can be used to verify that stored data has not been modified or corrupted during transmission or storage.
+5. Deterministic Information Dispersal: Data is distributed using deterministic techniques to support efficient storage and retrieval.
 
-These approaches aim to achieve a balance between storage efficiency, data confidentiality, data integrity, and protection against unauthorized access.
-- Proof of ownership .
-- Message-dependent encryption.
-- Traffic Obfuscation
-- Deterministic information dispersal 
+6. Secure Key Management: Cryptographic keys are protected against unauthorized access.
+
+7. Access Control and Authentication: User identities and permissions are verified before file operations are allowed.
+
+8. Data Integrity Verification: Cryptographic techniques help detect unauthorized changes or corruption of stored data.
 
 Alongside the above mentioned approaches, semantic secure
 data deduplication schemes were proposed, but were
