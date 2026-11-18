@@ -1,7 +1,10 @@
-# An implementation for secure data deduplication on end-to-end encrypted documents
+#An Implementation of Secure Data Deduplication for End-to-End Encrypted Documents
 
+Project Overview
 
-## This project presents a solution for secure storage with the possibility of deduplication
+This project presents an implementation of secure data deduplication for end-to-end encrypted documents. It aims to provide secure and efficient document storage by eliminating duplicate data while protecting the confidentiality and integrity of users' files.
+
+The solution explores cryptographic techniques, ownership verification, and secure access control to help reduce storage requirements without compromising data security.
 
 To obtain more efficient solutions for data transfer and storage, data deduplication techniques were designed and implemented. Still, it was proved that those first schemes,
 implemented by large companies, such as Dropbox, were
