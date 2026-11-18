@@ -304,43 +304,13 @@ public async Task<bool> VerifyChallengeResponseFromProxy(FileResp proxyResp)
                 submittedAnswer
             );
 
-        if (!matches)
-            return false;
-
-        // Consume the challenge atomically after successful verification.
-        return await _respRepo.TryConsumeChallengeAsync(
-            respId,
-            resp.Answer
-        );
-    }
-    catch (FormatException)
-    {
-        return false;
-    }
-    catch (Exception)
+            catch (Exception)
     {
         return false;
     }
 }
-
-            CryptographicOperations.FixedTimeEquals(
-                expectedAnswer,
-                submittedAnswer
-            );
-    }
-    catch (FormatException)
-    {
-        return false;
-    }
-    catch (Exception)
-    {
-        return false;
-    }
-}
-
-
-        public async Task SaveDedupFile(FileDedupDto fileDedupDto)
-        {
+  public async Task SaveDedupFi (FileDedupDtofileDedupDto)
+          {
             User? user = await _userRepo.GetUserByEmail(fileDedupDto.userEmail);
             if(user == null)
                 throw new Exception("User does not exist!");
