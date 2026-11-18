@@ -209,60 +209,134 @@ namespace FileStorageApp.Server.Services
             Utils.MerkleTree mt = await Utils.Utils.GetMerkleTreeFromBlob(fileMeta.Tag, _azureBlobService);
             await GenerateMerkleTreeChallenges(fileMeta.Id, mt);
         }
-        public async Task<FileMetaChallenge?> GetChallengeForTag(string base64Tag)
+        
+public async Task<FileMetaChallenge?> GetChallengeForTag(string base64Tag)
+{
+    try
+    {
+        if (string.IsNullOrWhiteSpace(base64Tag))
+            return null;
+
+        FileMetadata? fileMeta =
+            await _fileRepo.GetFileMetaByTagIfExists(base64Tag);
+
+        if (fileMeta == null)
+            return null;
+
+        List<Resp> resp =
+            await _respRepo.GetAvailableChallengesAsync(fileMeta.Id);
+
+        if (resp.Count < 5)
         {
-            try
-            {
-                //string base64encFile = await GetFileFromBlobWithoutEncryption(base64Tag);
-                FileMetadata fileMeta = await _fileRepo.GetFileMetaWithResp(base64Tag); 
-                List<Resp?> resp = fileMeta.Resps.Where(r => r.wasUsed == false).ToList<Resp>(); 
-                if (resp.Count() < 5)
-                {
-                    //reload the challenges
-                    //aici va trebui sa completam noi
-                    //MerkleTree mt = await GetMerkleTree(base64encFile);
-                    //await GenerateMerkleTreeChallenges(fileMeta.Id, mt);
-                    //resp = fileMeta.Resps.Where(r => r.wasUsed == false).FirstOrDefault();
-                    await reloadChall(fileMeta);
-                }
-                FileMetaChallenge fmc = new FileMetaChallenge();
-                int random = (new Random()).Next(resp.Count());
-                while(random > resp.Count()) random = (new Random()).Next(Convert.ToInt32(_configuration["J"]));
-                fmc.id = resp[random].Id.ToString();
-                fmc.n1 = resp[random].Position_1.ToString();
-                fmc.n2 = resp[random].Position_2.ToString();
-                fmc.n3 = resp[random].Position_3.ToString();
-                resp[random].wasUsed = true;
-                await _respRepo.UpdateResp(resp[random]);
-                return fmc;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return null;
-            }
+            await reloadChall(fileMeta);
+
+            // Refresh the challenge list after generating new challenges.
+            resp = await _respRepo.GetAvailableChallengesAsync(fileMeta.Id);
         }
 
-        public async Task<bool> VerifyChallengeResponseFromProxy(FileResp proxyResp)
+        while (resp.Count > 0)
         {
-            try
-            {
-                int respId = Int32.Parse(proxyResp.Id);
-                Resp? resp = await _respRepo.GetRespById(Convert.ToInt32(respId));
+            int random = RandomNumberGenerator.GetInt32(resp.Count);
+            Resp selected = resp[random];
 
-                if (resp == null) return false;
-                if (resp.Answer.Equals(resp.Answer))
-                {
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception e)
+            resp.RemoveAt(random);
+
+            // Atomically prevent the same challenge from being issued twice.
+            bool issued =
+                await _respRepo.TryIssueChallengeAsync(selected.Id);
+
+            if (!issued)
+                continue;
+
+            return new FileMetaChallenge
             {
-                Console.WriteLine(e.Message);
-                return false;
-            }
+                id = selected.Id.ToString(),
+                n1 = selected.Position_1.ToString(),
+                n2 = selected.Position_2.ToString(),
+                n3 = selected.Position_3.ToString()
+            };
         }
+
+        return null;
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine(e.Message);
+        return null;
+    }
+}
+
+                         
+public async Task<bool> VerifyChallengeResponseFromProxy(FileResp proxyResp)
+{
+    try
+    {
+        if (proxyResp == null ||
+            string.IsNullOrWhiteSpace(proxyResp.Id) ||
+            string.IsNullOrWhiteSpace(proxyResp.Answer))
+        {
+            return false;
+        }
+
+        if (!int.TryParse(proxyResp.Id, out int respId))
+            return false;
+
+        Resp? resp = await _respRepo.GetRespById(respId);
+
+        // Reject challenges that were not issued or were already consumed.
+        if (resp == null ||
+            !resp.wasUsed ||
+            string.IsNullOrWhiteSpace(resp.Answer))
+        {
+            return false;
+        }
+
+        byte[] expectedAnswer =
+            Convert.FromBase64String(resp.Answer);
+
+        byte[] submittedAnswer =
+            Convert.FromBase64String(proxyResp.Answer);
+
+        bool matches =
+            expectedAnswer.Length == submittedAnswer.Length &&
+            CryptographicOperations.FixedTimeEquals(
+                expectedAnswer,
+                submittedAnswer
+            );
+
+        if (!matches)
+            return false;
+
+        // Consume the challenge atomically after successful verification.
+        return await _respRepo.TryConsumeChallengeAsync(
+            respId,
+            resp.Answer
+        );
+    }
+    catch (FormatException)
+    {
+        return false;
+    }
+    catch (Exception)
+    {
+        return false;
+    }
+}
+
+            CryptographicOperations.FixedTimeEquals(
+                expectedAnswer,
+                submittedAnswer
+            );
+    }
+    catch (FormatException)
+    {
+        return false;
+    }
+    catch (Exception)
+    {
+        return false;
+    }
+}
 
 
         public async Task SaveDedupFile(FileDedupDto fileDedupDto)
