@@ -1,22 +1,23 @@
-# An implementation for secure data deduplication on end-to-end encrypted documents
+# An Implementation of Secure Data Deduplication for End-to-End Encrypted Documents
 
+## Project Overview
 
-## This project presents a solution for secure storage with the possibility of deduplication
-
+This project presents an implementation of secure data deduplication for end-to-end encrypted documents. It aims to provide secure and efficient document storage by eliminating duplicate data while protecting the confidentiality and integrity of users' files.
+The solution explores cryptographic techniques, ownership verification, and secure access control to help reduce storage requirements without compromising data security.
 To obtain more efficient solutions for data transfer and storage, data deduplication techniques were designed and implemented. Still, it was proved that those first schemes,
 implemented by large companies, such as Dropbox, were
 insecure and allowed for unauthorized data access. Since
 then, many schemes for secure data deduplication have been
 proposed.
-
-From 2010 to the present day,
-security properties for data deduplication were tackled mainly
-using the following approaches:
-- Proof of ownership .
-- Message-dependent encryption.
-- Traffic Obfuscation
-- Deterministic information dispersal 
-
+From 2010 to the present day, several approaches have been explored to improve the security of data deduplication:
+1. Convergent Encryption: Encryption keys are derived deterministically from file content, allowing identical files to produce identical encrypted representations.
+2. Proof of Ownership (PoW): The system verifies that a user possesses the original file before granting access to an existing stored copy.
+3. Message-Dependent Encryption: Encryption depends on information derived from the file content, enabling deduplication while protecting data.
+4. Traffic Obfuscation: Techniques are used to reduce information leakage through observable network traffic.
+5. Deterministic Information Dispersal: Data is distributed using deterministic techniques to support efficient storage and retrieval.
+6. Secure Key Management: Cryptographic keys are protected against unauthorized access.
+7. Access Control and Authentication: User identities and permissions are verified before file operations are allowed.
+8. Data Integrity Verification: Cryptographic techniques help detect unauthorized changes or corruption of stored data.
 Alongside the above mentioned approaches, semantic secure
 data deduplication schemes were proposed, but were
 proven to be unusable from a user-experience perspective.
@@ -28,20 +29,16 @@ for this solution, MHT are I/O intensive, therefore are not as
 efficient as one might wish. In our approach, the server stores a
 set of precomputed challenges that are to be used when another
 user would claim the ownership of the same document.
-
 Message-dependant encryption started using a simple aproach to encrypt documents using a some information generated from the file content itself. This way, one may assure a
 better deduplication factor, since two identical cleartext have
 the same cyphertext. This proposals evolved over time by using
 key servers and they also could generate a randomized tag, that
 is used to identify the document.
-
 To enhance data deduplication efficiency and security, we
 propose using a proxy server as an intermediary between the
 client and server. This approach expedites Proof of Ownership (PoW) computation, reducing client-side workload and
 mitigating security risks from network monitoring attacks. By
 acting as a protective barrier, the proxy server enhances overall
 performance and security in the deduplication process.
-
 ## System diagram
-
 ![System_diagram](https://github.com/user-attachments/assets/80c746e7-0a36-4d3f-bf62-6eaae87b5038)
