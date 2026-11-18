@@ -268,8 +268,7 @@ public async Task<FileMetaChallenge?> GetChallengeForTag(string base64Tag)
 
                          
 public async Task<bool> VerifyChallengeResponseFromProxy(FileResp proxyResp)
-{
-    try
+   try
     {
         if (proxyResp == null ||
             string.IsNullOrWhiteSpace(proxyResp.Id) ||
@@ -309,7 +308,7 @@ public async Task<bool> VerifyChallengeResponseFromProxy(FileResp proxyResp)
         return false;
     }
 }
-  public async Task SaveDedupFi (FileDedupDtofileDedupDto)
+  public async Task SaveDedupFile(FileDedupDto fileDedupDto)
           {
             User? user = await _userRepo.GetUserByEmail(fileDedupDto.userEmail);
             if(user == null)
