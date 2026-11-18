@@ -11,7 +11,19 @@ proposed.
 
 From 2010 to the present day,
 security properties for data deduplication were tackled mainly
-using the following approaches:
+using the following approaches:1. Convergent Encryption: Data is encrypted using a key derived from the data itself. This allows identical files to produce identical encrypted representations, making deduplication possible.
+
+2. Proof of Ownership (PoW): Before allowing a user to access an existing stored file, the system verifies that the user actually possesses the original data. This helps prevent unauthorized users from claiming ownership of files they do not have.
+
+3. Message-Locked Encryption: Encryption keys are deterministically generated from the message or file content. This enables identical data to share the same encrypted representation while maintaining confidentiality.
+
+4. Secure Key Management: Encryption keys must be protected against unauthorized access. Secure key storage, controlled key distribution, and appropriate cryptographic practices are essential to protecting user data.
+
+5. Access Control and Authentication: The system must verify user identities and enforce permissions before allowing files to be uploaded, retrieved, modified, or deleted.
+
+6. Data Integrity Verification: Cryptographic hash functions can be used to verify that stored data has not been modified or corrupted during transmission or storage.
+
+These approaches aim to achieve a balance between storage efficiency, data confidentiality, data integrity, and protection against unauthorized access.
 - Proof of ownership .
 - Message-dependent encryption.
 - Traffic Obfuscation
