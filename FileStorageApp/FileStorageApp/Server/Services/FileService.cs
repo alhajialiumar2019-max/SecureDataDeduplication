@@ -243,26 +243,53 @@ namespace FileStorageApp.Server.Services
             }
         }
 
-        public async Task<bool> VerifyChallengeResponseFromProxy(FileResp proxyResp)
-        {
-            try
-            {
-                int respId = Int32.Parse(proxyResp.Id);
-                Resp? resp = await _respRepo.GetRespById(Convert.ToInt32(respId));
+        
 
-                if (resp == null) return false;
-                if (resp.Answer.Equals(resp.Answer))
-                {
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return false;
-            }
+ public async Task<bool> VerifyChallengeResponseFromProxy(FileResp proxyResp)
+{
+    try
+    {
+        if (proxyResp == null ||
+            string.IsNullOrWhiteSpace(proxyResp.Id) ||
+            string.IsNullOrWhiteSpace(proxyResp.Answer))
+        {
+            return false;
         }
+
+        if (!int.TryParse(proxyResp.Id, out int respId))
+        {
+            return false;
+        }
+
+        Resp? resp = await _respRepo.GetRespById(respId);
+
+        if (resp == null ||
+            string.IsNullOrWhiteSpace(resp.Answer))
+        {
+            return false;
+        }
+
+        byte[] expectedAnswer =
+            Convert.FromBase64String(resp.Answer);
+
+        byte[] submittedAnswer =
+            Convert.FromBase64String(proxyResp.Answer);
+
+        return expectedAnswer.Length == submittedAnswer.Length &&
+            CryptographicOperations.FixedTimeEquals(
+                expectedAnswer,
+                submittedAnswer
+            );
+    }
+    catch (FormatException)
+    {
+        return false;
+    }
+    catch (Exception)
+    {
+        return false;
+    }
+}
 
 
         public async Task SaveDedupFile(FileDedupDto fileDedupDto)
